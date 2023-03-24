@@ -1,0 +1,3 @@
+[submodule "models/demucs"]
+	path = models/demucs
+	url = https://gitlab.tue.nl/es/convolve/wp1-use-cases/deep-noise-suppression-demucs.git
