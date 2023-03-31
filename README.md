@@ -13,3 +13,9 @@ python -m venv .env
 source .env/bin/activate
 pip install -r requirements
 ```
+
+### Running an example
+
+```
+python -m examples.resnet_tf.main
+```

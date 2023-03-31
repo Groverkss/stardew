@@ -1,6 +1,6 @@
-import tensorflow as tf
-
 from compiler.frontends.tensorflow.compiler import lower_to_linalg_on_tensors
+
+import tensorflow as tf
 
 class ResNet50(tf.Module):
     def __init__(self):
