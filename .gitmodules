@@ -1,3 +1,6 @@
 [submodule "models/demucs"]
 	path = models/demucs
 	url = https://gitlab.tue.nl/es/convolve/wp1-use-cases/deep-noise-suppression-demucs.git
+[submodule "external/torch-mlir"]
+	path = external/torch-mlir
+	url = https://github.com/llvm/torch-mlir.git
