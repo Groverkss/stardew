@@ -1,17 +1,7 @@
 # IREE Python API
 iree-compiler
 iree-runtime
-iree-tools-tflite
-iree-tools-xla
 iree-tools-tf
 
-# TensorFlow and JAX.
-gin-config
-tf-nightly
-tf-models-nightly
-tensorflow-text-nightly
-transformers
-jax[cpu]
-
-# tflitehub dependencies.
-Pillow
+# TensorFlow
+tensorflow

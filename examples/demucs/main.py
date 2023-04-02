@@ -1,3 +1,3 @@
-from models import Demucs
+from models.demucs.denoiser.demucs import Demucs
 
 model = Demucs()
