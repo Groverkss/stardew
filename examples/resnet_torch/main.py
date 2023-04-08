@@ -2,7 +2,7 @@ import torch
 import torch._dynamo as dynamo
 from torchvision.models import resnet50
 
-from compiler.frontends.pytorch.compiler import make_compiler
+from compiler.frontends.torch import make_compiler
 
 dynamo.reset()
 

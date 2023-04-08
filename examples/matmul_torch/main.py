@@ -1,7 +1,7 @@
 import torch
 import torch._dynamo as dynamo
 
-from compiler.frontends.pytorch.compiler import make_compiler
+from compiler.frontends.torch import make_compiler
 
 dynamo.reset()
 

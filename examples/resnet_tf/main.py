@@ -1,4 +1,4 @@
-from compiler.frontends.tensorflow.compiler import lower_to_linalg_on_tensors
+from compiler.frontends.tf import lower_to_linalg_on_tensors
 
 import tensorflow as tf
 
