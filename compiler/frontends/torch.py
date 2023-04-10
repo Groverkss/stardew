@@ -1,9 +1,10 @@
 import torch
-
 import torch_mlir
 from torch_mlir.dynamo import make_simple_dynamo_backend
 
-from typing import List, Optional
+from compiler.frontends.common import lower_to_linalg
+
+from typing import List
 
 def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
     for node in fx_g.graph.nodes:
@@ -29,7 +30,7 @@ def make_compiler():
 
         torch_mlir_module = torch_mlir.compile(fx_graph,
             example_inputs,
-            output_type=torch_mlir.OutputType.TORCH,
+            output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
         )
 
         print(torch_mlir_module)
