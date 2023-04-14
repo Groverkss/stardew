@@ -33,7 +33,13 @@ def make_compiler():
             output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
         )
 
-        print(torch_mlir_module)
+        mlir_str = str(
+            torch_mlir_module.operation.get_asm(
+                print_generic_op_form=True, large_elements_limit=10
+            )
+        )
+
+        print(mlir_str)
 
         def forward(*inputs):
             return (inputs,)

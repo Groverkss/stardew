@@ -11,6 +11,7 @@ def lower_to_linalg(compiler_module: str, input_type:str) -> str:
         "--iree-mhlo-demote-i64-to-i32=false",
         "--iree-flow-demote-i64-to-i32",
         "--mlir-print-ir-after=iree-mhlo-to-linalg-on-tensors",
+        "--mlir-print-op-generic",
     ]
 
     # Redirect stderr of compile_str to a string
