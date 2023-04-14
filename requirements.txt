@@ -15,3 +15,6 @@ torch-mlir
 torch
 torchvision
 torchtext
+
+# xDSL
+xdsl
