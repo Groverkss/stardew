@@ -33,7 +33,7 @@ def torch_compiler():
 
         mlir_str = str(
             torch_mlir_module.operation.get_asm(
-                print_generic_op_form=True, large_elements_limit=10
+                print_generic_op_form=False, large_elements_limit=10
             )
         )
 
