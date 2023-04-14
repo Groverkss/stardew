@@ -1,14 +1,13 @@
-from compiler.frontends.tf import lower_to_linalg_on_tensors
+from compiler.frontend import tf_compiler
 
 import tensorflow as tf
 
-class ResNet50(tf.Module):
-    def __init__(self):
-        super(ResNet50, self).__init__()
-        self.resnet50 = tf.keras.applications.ResNet50(weights="imagenet")
+model = tf.keras.applications.ResNet50()
 
-    @tf.function(input_signature=[tf.TensorSpec([1, 224, 224, 3], tf.float32)])
-    def forward(self, example_input):
-        return self.resnet50(example_input)
+@tf_compiler(tf.TensorSpec([1, 224, 224, 3], tf.float32))
+def resnet(x):
+    return model(x)
 
-lower_to_linalg_on_tensors(ResNet50(), "resnet50.mlir")
+a = tf.random.uniform([1, 224, 224, 3])
+b = resnet(a)
+print(b)

@@ -2,8 +2,6 @@ import torch
 import torch_mlir
 from torch_mlir.dynamo import make_simple_dynamo_backend
 
-from compiler.frontends.common import lower_to_linalg
-
 from typing import List
 
 def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
@@ -18,7 +16,7 @@ def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
     return False
 
 
-def make_compiler():
+def torch_compiler():
     def compiler(
         fx_graph: torch.fx.GraphModule,
         example_inputs: List[torch.Tensor],

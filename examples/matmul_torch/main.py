@@ -1,11 +1,11 @@
 import torch
 import torch._dynamo as dynamo
 
-from compiler.frontends.torch import make_compiler
+from compiler.frontend import torch_compiler
 
 dynamo.reset()
 
-@dynamo.optimize(make_compiler())
+@dynamo.optimize(torch_compiler())
 def matmul(a, b):
     return torch.matmul(a, b)
 

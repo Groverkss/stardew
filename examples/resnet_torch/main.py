@@ -2,7 +2,7 @@ import torch
 import torch._dynamo as dynamo
 from torchvision.models import resnet50
 
-from compiler.frontends.torch import make_compiler
+from compiler.frontend import torch_compiler
 
 model = resnet50()
 with torch.no_grad():
@@ -10,7 +10,7 @@ with torch.no_grad():
 
 dynamo.reset()
 
-@dynamo.optimize(make_compiler())
+@dynamo.optimize(torch_compiler())
 def resnet(t):
     return model.forward(t)
 
