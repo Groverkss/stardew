@@ -39,9 +39,9 @@ def make_compiler():
             )
         )
 
-        print(mlir_str)
-
         def forward(*inputs):
+            # TODO: Plug in an actual backend here
+            print(mlir_str)
             return (inputs,)
 
         return forward
