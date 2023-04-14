@@ -15,5 +15,5 @@ def resnet(t):
     return model.forward(t)
 
 example = torch.randn(1, 3, 224, 224) 
-resnet(example)
-print(example)
+out = resnet(example)
+print(out)
