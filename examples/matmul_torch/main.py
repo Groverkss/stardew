@@ -12,3 +12,4 @@ def matmul(a, b):
 a = torch.randn(50, 50)
 b = torch.randn(50, 50)
 c = matmul(a, b)
+print(c)
