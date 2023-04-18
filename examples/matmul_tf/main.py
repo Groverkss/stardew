@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from compiler.frontend import tf_compiler
+from stardew.frontend import tf_compiler
 
 @tf_compiler(tf.TensorSpec([50, 50], tf.float32), 
              tf.TensorSpec([50, 50], tf.float32))

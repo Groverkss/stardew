@@ -1,7 +1,7 @@
 from iree.compiler import tf as tfc
 import tensorflow as tf
 
-from compiler.frontend.common import lower_to_linalg
+from stardew.frontend.common import lower_to_linalg
 
 def tf_compiler(*types):
     def compiler(func):

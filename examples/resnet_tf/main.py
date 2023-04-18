@@ -1,4 +1,4 @@
-from compiler.frontend import tf_compiler
+from stardew.frontend import tf_compiler
 
 import tensorflow as tf
 

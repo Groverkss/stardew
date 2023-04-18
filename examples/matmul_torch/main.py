@@ -1,7 +1,7 @@
 import torch
 import torch._dynamo as dynamo
 
-from compiler.frontend import torch_compiler
+from stardew.frontend import torch_compiler
 
 dynamo.reset()
 

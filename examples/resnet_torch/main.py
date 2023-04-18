@@ -2,7 +2,7 @@ import torch
 import torch._dynamo as dynamo
 from torchvision.models import resnet50
 
-from compiler.frontend import torch_compiler
+from stardew.frontend import torch_compiler
 
 model = resnet50()
 with torch.no_grad():
