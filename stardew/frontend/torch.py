@@ -3,6 +3,7 @@ import torch_mlir
 from torch_mlir.dynamo import make_simple_dynamo_backend
 
 from stardew.frontend.common import OutputType
+from stardew.backend.torch_mlir_backend import torch_mlir_backend
 
 from typing import List, Union
 
@@ -37,7 +38,10 @@ def torch_compiler(output_type: Union[str, OutputType]):
                 example_inputs,
                 output_type=torch_mlir.OutputType.RAW,
             )
-        elif output_type == OutputType.INPUT_IR:
+        elif (
+            output_type == OutputType.INPUT_IR
+            or output_type == OutputType.COMPILED_FN
+        ):
             torch_mlir_module = torch_mlir.compile(
                 fx_graph,
                 example_inputs,
@@ -53,9 +57,14 @@ def torch_compiler(output_type: Union[str, OutputType]):
         )
 
         def forward(*inputs):
-            # TODO: Plug in an actual backend here
-            print(mlir_str)
-            return (inputs,)
+            if output_type != OutputType.COMPILED_FN:
+                # If we're not compiling, just return the input and print
+                # the mlir string. This is useful for debugging.
+                print(mlir_str)
+                return (inputs,)
+
+            # Run the compiled MLIR on the backend.
+            return torch_mlir_backend(torch_mlir_module, inputs)
 
         return forward
 

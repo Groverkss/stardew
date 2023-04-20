@@ -6,12 +6,12 @@ from stardew.frontend import torch_compiler
 dynamo.reset()
 
 
-@dynamo.optimize(torch_compiler(output_type="torch_raw"))
+@dynamo.optimize(torch_compiler(output_type="compiled_fn"))
 def matmul(a, b):
     return torch.matmul(a, b)
 
 
-a = torch.randn(50, 50)
-b = torch.randn(50, 50)
+a = torch.randn(3, 3)
+b = torch.randn(3, 3)
 c = matmul(a, b)
 print(c)
