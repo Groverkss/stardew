@@ -2,12 +2,19 @@ import tensorflow as tf
 
 from stardew.frontend import tf_compiler
 
-@tf_compiler(tf.TensorSpec([50, 50], tf.float32), 
-             tf.TensorSpec([50, 50], tf.float32))
+
+@tf_compiler(
+    input_signature=[
+        tf.TensorSpec([50, 50], tf.float32),
+        tf.TensorSpec([50, 50], tf.float32),
+    ],
+    output_type="tf_raw",
+)
 def matmul(a, b):
     a = tf.abs(a)
     b = tf.abs(b)
     return tf.matmul(a, b)
+
 
 a = tf.random.uniform((50, 50))
 b = tf.random.uniform((50, 50))

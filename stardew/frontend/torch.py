@@ -2,7 +2,10 @@ import torch
 import torch_mlir
 from torch_mlir.dynamo import make_simple_dynamo_backend
 
-from typing import List
+from stardew.frontend.common import OutputType
+
+from typing import List, Union
+
 
 def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
     for node in fx_g.graph.nodes:
@@ -16,7 +19,9 @@ def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
     return False
 
 
-def torch_compiler():
+def torch_compiler(output_type: Union[str, OutputType]):
+    output_type = OutputType.get(output_type)
+
     def compiler(
         fx_graph: torch.fx.GraphModule,
         example_inputs: List[torch.Tensor],
@@ -26,10 +31,20 @@ def torch_compiler():
         if _returns_nothing(fx_graph):
             return fx_graph
 
-        torch_mlir_module = torch_mlir.compile(fx_graph,
-            example_inputs,
-            output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
-        )
+        if output_type == OutputType.TORCH_RAW:
+            torch_mlir_module = torch_mlir.compile(
+                fx_graph,
+                example_inputs,
+                output_type=torch_mlir.OutputType.RAW,
+            )
+        elif output_type == OutputType.INPUT_IR:
+            torch_mlir_module = torch_mlir.compile(
+                fx_graph,
+                example_inputs,
+                output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
+            )
+        else:
+            raise ValueError(f"Unsupported output_type: {output_type}")
 
         mlir_str = str(
             torch_mlir_module.operation.get_asm(

@@ -5,9 +5,11 @@ from stardew.frontend import torch_compiler
 
 dynamo.reset()
 
-@dynamo.optimize(torch_compiler())
+
+@dynamo.optimize(torch_compiler(output_type="torch_raw"))
 def matmul(a, b):
     return torch.matmul(a, b)
+
 
 a = torch.randn(50, 50)
 b = torch.randn(50, 50)
