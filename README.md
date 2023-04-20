@@ -19,3 +19,17 @@ pip install -r requirements
 ```
 python -m examples.resnet_tf.main
 ```
+
+### Installing as a pip package
+
+Install requirements.txt
+
+```
+pip install -r requirements.txt
+```
+
+Install package
+
+```
+pip install .
+```
