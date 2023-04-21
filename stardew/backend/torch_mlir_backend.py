@@ -7,6 +7,9 @@ def torch_mlir_backend(linalg_module, inputs):
     jit_module = backend.load(compiled)
     np_inputs = [x.numpy() for x in inputs]
     out = jit_module.forward(*np_inputs)
+
+    # If we have only one output, return a single tensor.
     if not isinstance(out, tuple):
         return torch.from_numpy(out)
+    # Otherwise, return a tuple of tensors.
     return [torch.from_numpy(x) for x in out]
