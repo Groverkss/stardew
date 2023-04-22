@@ -3,7 +3,7 @@ import torch_mlir
 from torch_mlir.dynamo import make_simple_dynamo_backend
 
 from stardew.frontend.common import OutputType
-from stardew.backend.torch_mlir_backend import torch_mlir_backend
+from stardew.backend.torch_mlir_backend import TorchMLIRBackend
 
 from typing import List, Union
 
@@ -56,6 +56,10 @@ def torch_compiler(output_type: Union[str, OutputType]):
             )
         )
 
+        if output_type == OutputType.COMPILED_FN:
+            backend = TorchMLIRBackend()
+            compiled = backend.compile(torch_mlir_module)
+
         def forward(*inputs):
             if output_type != OutputType.COMPILED_FN:
                 # If we're not compiling, just return the input and print
@@ -64,7 +68,7 @@ def torch_compiler(output_type: Union[str, OutputType]):
                 return (inputs,)
 
             # Run the compiled MLIR on the backend.
-            return torch_mlir_backend(torch_mlir_module, inputs)
+            return backend.forward(compiled, *inputs)
 
         return forward
 
