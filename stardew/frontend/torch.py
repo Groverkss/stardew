@@ -20,6 +20,33 @@ def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
     return False
 
 
+def _compile_mlir(module, pipeline):
+    pipeline = "builtin.module(" + ",".join(pipeline) + ")"
+    torch_mlir.run_pipeline_with_repro_report(module, pipeline, "")
+    return module
+
+
+def bufferize_linalg(compiler_module):
+    pipeline = [
+        "empty-tensor-to-alloc-tensor",
+        "one-shot-bufferize{allow-return-allocs bufferize-function-boundaries}",
+        "canonicalize",
+        "cse",
+        "canonicalize",
+    ]
+    return _compile_mlir(compiler_module, pipeline)
+
+
+def bufferized_to_affine(compiler_module):
+    pipeline = [
+        "fold-memref-alias-ops",
+        "func.func(convert-linalg-to-affine-loops)",
+        "func.func(canonicalize)",
+        "func.func(cse)",
+    ]
+    return _compile_mlir(compiler_module, pipeline)
+
+
 def torch_compiler(output_type: Union[str, OutputType]):
     output_type = OutputType.get(output_type)
 
@@ -41,12 +68,22 @@ def torch_compiler(output_type: Union[str, OutputType]):
         elif (
             output_type == OutputType.INPUT_IR
             or output_type == OutputType.COMPILED_FN
+            or output_type == OutputType.BUFFERIZED_IR
+            or output_type == OutputType.AFFINE_IR
         ):
             torch_mlir_module = torch_mlir.compile(
                 fx_graph,
                 example_inputs,
                 output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
             )
+
+            if (
+                output_type == OutputType.BUFFERIZED_IR
+                or output_type == OutputType.AFFINE_IR
+            ):
+                torch_mlir_module = bufferize_linalg(torch_mlir_module)
+            if output_type == OutputType.AFFINE_IR:
+                torch_mlir_module = bufferized_to_affine(torch_mlir_module)
         else:
             raise ValueError(f"Unsupported output_type: {output_type}")
 

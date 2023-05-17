@@ -12,6 +12,8 @@ class OutputType(Enum):
     TF_RAW = "tf_raw"
     INPUT_IR = "input_ir"
     COMPILED_FN = "compiled_fn"
+    BUFFERIZED_IR = "bufferized_ir"
+    AFFINE_IR = "affine_ir"
 
     @staticmethod
     def get(spec: Union[str, "OutputType"]) -> "OutputType":
