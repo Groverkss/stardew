@@ -1,6 +1,6 @@
-# Kunwar Experiments
+# Stardew
 
-Repository for experiments for compilation flow conducted by me.
+Bunch of experiments on lowering pytorch/tensorflow to mlir.
 
 ## Setup
 
