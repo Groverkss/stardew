@@ -1,17 +1,18 @@
-# IREE Python API
--f https://github.com/google/iree/releases
+# IREE
+-f https://iree-org.github.io/iree/pip-release-links.html
 iree-compiler
 iree-runtime
 iree-tools-tf
 
-# TensorFlow
-tensorflow
-
-# Pytorch
--f https://github.com/llvm/torch-mlir/releases
+# Torch-MLIR
+-f https://llvm.github.io/torch-mlir/package-index/
 torch-mlir
---extra-index-url https://download.pytorch.org/whl/nightly/cpu
+-f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
 --pre
 torch
 torchvision
-torchtext
+
+# TensorFlow
+tensorflow>2.0
+keras
+transformers
