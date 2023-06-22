@@ -1,112 +1,81 @@
 import torch
 import torch_mlir
 from torch_mlir.dynamo import make_simple_dynamo_backend
+import torch._dynamo as dynamo
 
-from stardew.frontend.common import OutputType
-from stardew.backend.torch_mlir_backend import TorchMLIRBackend
+from torch.fx.experimental.proxy_tensor import make_fx
+from torch._functorch.eager_transforms import functionalize
+from torch._decomp import get_decompositions
 
-from typing import List, Union
+from typing import List
 
+def _get_decomposition_table():
+    """Get a decomposition table suitable for Torch-MLIR.
+    
+    Sometimes TorchDynamo traces slightly different ops than what TorchScript
+    captures. Historically we have been driven by the ops captured by
+    TorchScript, so we try to decompose the ops captured by TorchDynamo into
+    other ops that we already support.
+    
+    There isn't a highly principled solution here. Torch-MLIR currently supports
+    a somewhat random set of ops, added in a demand-driven way over time,
+    including direct backend support and decompositions internal to Torch-MLIR.
+    As described in the
+    [long-term roadmap](https://github.com/llvm/torch-mlir/blob/main/docs/long_term_roadmap.md),
+    eventually this situation is expected to be made a lot more principled
+    by aligning more with how Torch-MLIR would have looked if some of the new
+    upstream PyTorch infra had been available at the beginning -- in particular
+    the new decomposition infra and PrimTorch.
+    """
+    aten = torch.ops.aten
+    return get_decompositions([
+        aten._adaptive_avg_pool2d,
+        aten.std.correction,
+        aten.dot,
+        # TODO: Backends probably want to support this directly without
+        # decomposition.
+        # Our current situation with batch norm is a bit of a mess.
+        # aten.batch_norm has direct backend lowerings,
+        # aten.native_batch_norm gets decomposed into elementwise/reductions
+        # by DecomposeComplexOps (no backend marks it as backend-legal).
+        # Neither appears to support the "training" mode
+        # (the upstream decomposition we use here does), even though we have
+        # support for aten.native_batch_norm_backward.
+        aten._native_batch_norm_legit_functional,
+        aten.native_group_norm,
+        aten.split.Tensor,
+        aten.split_with_sizes,
+        aten.norm.ScalarOpt_dim,
+        aten.embedding_dense_backward,
+        aten.native_layer_norm_backward,
+        aten.slice_backward,
+        aten.select_backward,
+        aten.upsample_bilinear2d.vec,
+        aten.mse_loss_backward,
+        aten.native_group_norm_backward,
+        aten.sigmoid_backward,
+        aten._native_batch_norm_legit,
+        aten._native_batch_norm_legit_no_training,
+        aten.squeeze,
+    ])
 
-def _returns_nothing(fx_g: torch.fx.GraphModule) -> bool:
-    for node in fx_g.graph.nodes:
-        if node.op == "output":
-            assert (
-                len(node.args) == 1
-            ), "Output node must have a single argument"
-            node_arg = node.args[0]
-            if isinstance(node_arg, tuple):
-                return len(node_arg) == 0
-    return False
+def torch_to_input_ir(func, example: List[torch.Tensor]):
+    """Given a python function, returns it's input ir representation"""
 
+    fx_graph = make_fx(
+        func,
+        decomposition_table=get_decompositions(_get_decomposition_table()),
+    )(*example)
 
-def _compile_mlir(module, pipeline):
-    pipeline = "builtin.module(" + ",".join(pipeline) + ")"
-    torch_mlir.run_pipeline_with_repro_report(module, pipeline, "")
-    return module
+    torch_mlir_module = torch_mlir.compile(
+        fx_graph,
+        example,
+        output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
+    )
 
+    # convert to asm    
+    mlir_str = torch_mlir_module.operation.get_asm(
+        print_generic_op_form=False, large_elements_limit=10
+    )
 
-def bufferize_linalg(compiler_module):
-    pipeline = [
-        "empty-tensor-to-alloc-tensor",
-        "one-shot-bufferize{allow-return-allocs bufferize-function-boundaries}",
-        "canonicalize",
-        "cse",
-        "canonicalize",
-    ]
-    return _compile_mlir(compiler_module, pipeline)
-
-
-def bufferized_to_affine(compiler_module):
-    pipeline = [
-        "fold-memref-alias-ops",
-        "func.func(convert-linalg-to-affine-loops)",
-        "func.func(canonicalize)",
-        "func.func(cse)",
-    ]
-    return _compile_mlir(compiler_module, pipeline)
-
-
-def torch_compiler(output_type: Union[str, OutputType]):
-    output_type = OutputType.get(output_type)
-
-    def compiler(
-        fx_graph: torch.fx.GraphModule,
-        example_inputs: List[torch.Tensor],
-    ):
-        """Compile GraphModule using torch-mlir."""
-
-        if _returns_nothing(fx_graph):
-            return fx_graph
-
-        if output_type == OutputType.TORCH_RAW:
-            torch_mlir_module = torch_mlir.compile(
-                fx_graph,
-                example_inputs,
-                output_type=torch_mlir.OutputType.RAW,
-            )
-        elif (
-            output_type == OutputType.INPUT_IR
-            or output_type == OutputType.COMPILED_FN
-            or output_type == OutputType.BUFFERIZED_IR
-            or output_type == OutputType.AFFINE_IR
-        ):
-            torch_mlir_module = torch_mlir.compile(
-                fx_graph,
-                example_inputs,
-                output_type=torch_mlir.OutputType.LINALG_ON_TENSORS,
-            )
-
-            if (
-                output_type == OutputType.BUFFERIZED_IR
-                or output_type == OutputType.AFFINE_IR
-            ):
-                torch_mlir_module = bufferize_linalg(torch_mlir_module)
-            if output_type == OutputType.AFFINE_IR:
-                torch_mlir_module = bufferized_to_affine(torch_mlir_module)
-        else:
-            raise ValueError(f"Unsupported output_type: {output_type}")
-
-        mlir_str = str(
-            torch_mlir_module.operation.get_asm(
-                print_generic_op_form=False, large_elements_limit=10
-            )
-        )
-
-        if output_type == OutputType.COMPILED_FN:
-            backend = TorchMLIRBackend()
-            compiled = backend.compile(torch_mlir_module)
-
-        def forward(*inputs):
-            if output_type != OutputType.COMPILED_FN:
-                # If we're not compiling, just return the input and print
-                # the mlir string. This is useful for debugging.
-                print(mlir_str)
-                return (inputs,)
-
-            # Run the compiled MLIR on the backend.
-            return backend.forward(compiled, *inputs)
-
-        return forward
-
-    return make_simple_dynamo_backend(compiler)
+    return mlir_str

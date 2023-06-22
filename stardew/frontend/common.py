@@ -7,35 +7,6 @@ from enum import Enum
 from typing import Union
 
 
-class OutputType(Enum):
-    TORCH_RAW = "torch_raw"
-    TF_RAW = "tf_raw"
-    INPUT_IR = "input_ir"
-    COMPILED_FN = "compiled_fn"
-    BUFFERIZED_IR = "bufferized_ir"
-    AFFINE_IR = "affine_ir"
-
-    @staticmethod
-    def get(spec: Union[str, "OutputType"]) -> "OutputType":
-        """Gets an OutputType from allowed way to specify one.
-
-        Args:
-          spec: An OutputType instance or the case-insensitive name of one of the
-            enum values.
-        Returns:
-          An OutputType instance.
-        """
-        if isinstance(spec, OutputType):
-            return spec
-        spec = spec.upper().replace("-", "_")
-        if spec not in OutputType.__members__:
-            raise ValueError(
-                f"For output_type= argument, expected one of: "
-                f"{', '.join(OutputType.__members__.keys())}"
-            )
-        return OutputType[spec]
-
-
 def lower_to_linalg(compiler_module: str, input_type: str) -> str:
     backend = "llvm-cpu"
     args = [
