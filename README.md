@@ -28,6 +28,11 @@ pip install --editable . --require-venv
 
 ### Running an example
 
+To run the examples, you need pytest:
 ```sh
-python -m examples.mlp_torch.main
+pip install pytest
+```
+Then you can run the tests with:
+```sh
+pytest tests
 ```
