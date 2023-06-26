@@ -1,18 +1,5 @@
-# IREE
+# t IREE
 -f https://iree-org.github.io/iree/pip-release-links.html
 iree-compiler
 iree-runtime
 iree-tools-tf
-
-# Torch-MLIR
--f https://llvm.github.io/torch-mlir/package-index/
-torch-mlir
--f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
---pre
-torch
-torchvision
-
-# TensorFlow
-tensorflow>2.0
-keras
-transformers
