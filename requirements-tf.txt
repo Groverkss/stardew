@@ -1,0 +1,2 @@
+# TensorFlow requirements
+tensorflow>2.0
