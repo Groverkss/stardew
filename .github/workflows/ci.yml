@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  pytorch-tests:
 
     runs-on: ubuntu-latest
 
@@ -26,7 +26,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt -r requirements-tf.txt -r requirements-torch.txt pytest
+        pip install -r requirements.txt -r requirements-torch.txt pytest
+    - name: Install Stardew
+      run: |
+        pip install --editable .
     - name: Test with pytest
       run: |
-        pytest tests
+        pytest tests/pytorch
