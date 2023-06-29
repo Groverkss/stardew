@@ -1,2 +1,3 @@
 # TensorFlow requirements
 tensorflow>2.0
+iree-tools-tf
