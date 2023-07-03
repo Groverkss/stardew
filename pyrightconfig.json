@@ -1,6 +1,0 @@
-{
-  "python.venvPath": ".env",
-  "executionEnvironments": [
-    {"root": "."}
-  ]
-}
