@@ -6,7 +6,7 @@ Bunch of experiments on lowering PyTorch/Tensorflow to MLIR.
 
 ### Create Virtual Environment
 
-This was tested on python 3.11.3
+This was tested on python 3.11.3. The project requires Python >= 3.11.
 
 ```sh
 python -m venv .env
