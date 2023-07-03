@@ -4,4 +4,4 @@ iree-compiler
 iree-runtime
 
 # xDSl
-xdsl
+xdsl @ git+https://github.com/xdslproject/xdsl@main
