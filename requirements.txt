@@ -1,4 +1,7 @@
-# t IREE
+# IREE
 -f https://iree-org.github.io/iree/pip-release-links.html
 iree-compiler
 iree-runtime
+
+# xDSl
+xdsl
