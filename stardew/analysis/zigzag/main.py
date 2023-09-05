@@ -20,7 +20,7 @@ if len(sys.argv) < 2:
     exit(1)
 
 input_file = sys.argv[1]
-ctx = MLContext()
+ctx = MLContext(allow_unregistered=True)
 
 # Register Arith, Builtin, Func, Linalg, Memref
 ctx.register_dialect(arith.Arith)
