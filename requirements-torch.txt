@@ -1,7 +1,6 @@
 # Torch-MLIR
--f https://github.com/llvm/torch-mlir/releases/expanded_assets/snapshot-20230525.849
-torch-mlir==20230525.849
--f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
---pre
-torch==2.1.0.dev20230523+cpu
-torchvision==0.16.0.dev20230523+cpu
+--pre 
+-f https://llvm.github.io/torch-mlir/package-index/
+--extra-index-url https://download.pytorch.org/whl/nightly/cpu
+torch-mlir
+torchvision
